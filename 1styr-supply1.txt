@@ -1,0 +1,73 @@
+delimiter ^^
+drop procedure if exists p10^^
+create procedure p10()
+begin
+declare done,run int default false;
+
+declare a,a1,a2,a3,b,b1,b2,b3,n,j,ptr int;
+
+declare h1,h2,h3,h4,h5 varchar(10);
+
+declare c1 cursor for select htno,scode,external,total,credits from 15reg1 where credits=0 order by htno,scode asc;
+
+declare c2 cursor for select htno,scode,external,total,credits from 15sup1 where credits!=0 order by htno,scode asc;
+
+declare continue handler for not found set done=true;
+
+set ptr =0;
+
+open c1;
+
+loop1:loop
+
+fetch c1 into h1,h2,a1,a2,a3;
+
+begin
+
+declare continue handler for not found set run=1;
+
+set run=0;
+
+open c2;
+
+set ptr=ptr+1;
+
+select ptr;
+
+select 'hi';
+
+loop2:loop
+
+fetch c2 into h3,h4,b1,b2,b3;
+
+if (h1 = h3 and h2=h4)then
+
+update 15reg1  set external=b1,total=b2,credits=b3  where htno=h3 and scode=h4;
+
+delete from 15sup1 where htno=h3 and scode=h4;
+
+close c2;
+
+iterate loop1;
+
+end if;
+
+if (run) then
+leave loop2;
+end if;
+
+end loop loop2;
+
+close c2;
+
+end;
+
+if (done) then
+leave loop1;
+end if;
+
+end loop loop1;
+
+close c1;
+
+end^^
